@@ -77,7 +77,7 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $tags = Tag::all();
-        return view('admin.posts.edit', compact('post'));
+        return view('admin.posts.edit', compact('post','tags'));
     }
 
     /**
@@ -95,6 +95,7 @@ class PostController extends Controller
             'body'=>'required|min:3|max:100'
         ]);
         $data['slug'] = Str::slug($data['title'],'-');
+        $post->tags()->sync($data['tags']);
         $post->update($data);
         return redirect()->route('posts.index')->with('Updated','Post '.$post->id.' modificat con sucesso');
     }

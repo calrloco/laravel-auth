@@ -18,13 +18,13 @@
             <textarea class="form-control" name="body" id="exampleFormControlTextarea1" rows="3">{{$post->body}}</textarea>
         </div>
         <div class="form-group">
-            @foreach($tags ?? '' as $tag)
-            <div class="input-group-text">
-             <input type="checkbox" aria-label="Checkbox for following text input" 
-              name="tags"  value="{{$tag->id}}" {{$post->tags->contains($tag->id) ? 'checked':''}}>
-             <span class="input-group-text" id="">{{$tag->name}}</span>
+            @foreach ($tags as $tag)
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" id="inlineCheckbox1" name="tags[]"
+                    value="{{ $tag->id }}"{{$post->tags->contains($tag->id)? 'checked="checked"' : ''}}>
+                <label class="form-check-label" for="inlineCheckbox1">{{ $tag->name }}</label>
             </div>
-             @endforeach
+           @endforeach
          </div>
         <input type="submit" value="submit" class="btn btn-primary">
     </form>
