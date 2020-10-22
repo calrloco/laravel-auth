@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Post;
+use App\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
@@ -16,7 +17,8 @@ class PostController extends Controller
      */
     public function index()
     {
-        
+        $posts = Post::where('user_id',Auth::id())->orderBy('created_at','desc')->get();
+        return view('admin.posts.index', compact('posts'));
     }
 
     /**
@@ -26,7 +28,8 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('admin.posts.create');
+        $tags = Tag::all();
+        return view('admin.posts.create',compact('tags'));
     }
 
     /**
@@ -47,7 +50,11 @@ class PostController extends Controller
         $newPost = new Post();
         $newPost->fill($data);
         $saved = $newPost->save();
-        dd($saved);
+        $newPost->tags()->attach($data['tags']);
+        if($saved){
+        return redirect()->route('posts.index');
+        }
+    
     }
 
     /**
@@ -69,7 +76,8 @@ class PostController extends Controller
      */
     public function edit(Post $post)
     {
-        //
+        $tags = Tag::all();
+        return view('admin.posts.edit', compact('post'));
     }
 
     /**
@@ -81,7 +89,14 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
-        //
+        $data = $request->all();
+        $request->validate([
+            'title'=>'required|min:3|max:100',
+            'body'=>'required|min:3|max:100'
+        ]);
+        $data['slug'] = Str::slug($data['title'],'-');
+        $post->update($data);
+        return redirect()->route('posts.index')->with('Updated','Post '.$post->id.' modificat con sucesso');
     }
 
     /**
@@ -92,6 +107,7 @@ class PostController extends Controller
      */
     public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return redirect()->route('posts.index')->with('delete','Hai cancellato il post '.$post->id);
     }
 }

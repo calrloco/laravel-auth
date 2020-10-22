@@ -10,7 +10,7 @@
 <div class="container">
     <div class="row justify-content-center">
      <p class="lead text-uppercase">Bentornato {{ Auth::user()->name }}</p>
-     </div>
+    </div>
 </div>
 @endguest
 @endsection
