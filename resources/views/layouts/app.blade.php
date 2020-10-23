@@ -63,6 +63,12 @@
                                                      document.getElementById('logout-form').submit();">
                                         {{ __('Logout') }}
                                     </a>
+                                    <a class="dropdown-item" href="{{ route('posts.index',Auth::id()) }}">
+                                       I tuoi post
+                                    </a>
+                                    <a class="dropdown-item" href="{{ route('posts.create')}}">
+                                        Crea Post
+                                    </a>
 
                                     <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
                                         @csrf
