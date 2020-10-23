@@ -6,7 +6,7 @@
         <p>{{$error}}</p>
     @endforeach
     @endif
-    <form action="{{ route('posts.update',$post->id) }}" method="post">
+    <form action="{{ route('posts.update',$post->id) }}" method="post" enctype="multipart/form-data">
         @csrf
         @method('PATCH')
         <div class="form-group">
@@ -26,6 +26,11 @@
             </div>
            @endforeach
          </div>
+         <div class="form-group">
+            <p>Modifica Immagine</p>
+            <img src="{{asset('storage/'.$post->img)}}" name="exampleFormControlFile2" alt="{{$post->title.'.img'}}" height="300px">
+            <input type="file" name="img" accept="image/*" class="form-control-file" id="exampleFormControlFile1">
+        </div>
         <input type="submit" value="submit" class="btn btn-primary">
     </form>
 </div>

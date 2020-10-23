@@ -7,7 +7,7 @@
                 <p>{{ $error }}</p>
             @endforeach
         @endif
-        <form action="{{ route('posts.store') }}" method="post">
+        <form action="{{ route('posts.store') }}" method="post" enctype="multipart/form-data">
             @csrf
             @method('POST')
             <div class="form-group">
@@ -26,6 +26,10 @@
                         <label class="form-check-label" for="inlineCheckbox1">{{ $tag->name }}</label>
                     </div>
                 @endforeach
+            </div>
+            <div class="form-group">
+                <label for="exampleFormControlFile1">Immagine</label>
+                <input type="file" name="img" accept="image/*" class="form-control-file" id="exampleFormControlFile1">
             </div>
             <input type="submit" value="submit" class="btn btn-primary">
         </form>

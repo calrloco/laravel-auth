@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
+
 use App\Http\Controllers\Controller;
 use App\Post;
 use App\Tag;
@@ -8,6 +9,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\User;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
+
 class PostController extends Controller
 {
     /**
@@ -17,7 +21,7 @@ class PostController extends Controller
      */
     public function index()
     {
-        $posts = Post::where('user_id',Auth::id())->orderBy('created_at','desc')->get();
+        $posts = Post::where('user_id', Auth::id())->orderBy('created_at', 'desc')->paginate(5);
         return view('admin.posts.index', compact('posts'));
     }
 
@@ -29,7 +33,7 @@ class PostController extends Controller
     public function create()
     {
         $tags = Tag::all();
-        return view('admin.posts.create',compact('tags'));
+        return view('admin.posts.create', compact('tags'));
     }
 
     /**
@@ -42,19 +46,22 @@ class PostController extends Controller
     {
         $data = $request->all();
         $request->validate([
-            'title'=>'required|min:3|max:100',
-            'body'=>'required|min:3|max:100'
+            'title' => 'required|min:3|max:100',
+            'body' => 'required|min:3|max:100',
+            'img' => 'image'
         ]);
         $data['user_id'] = Auth::id();
-        $data['slug'] = Str::slug($data['title'],'-');
+        $data['slug'] = Str::slug($data['title'], '-');
+        if (!empty($data['img'])) {
+            $data['img'] = Storage::disk('public')->put('images', $data['img']);
+        }
         $newPost = new Post();
         $newPost->fill($data);
         $saved = $newPost->save();
         $newPost->tags()->attach($data['tags']);
-        if($saved){
-        return redirect()->route('posts.index');
+        if ($saved) {
+            return redirect()->route('posts.index');
         }
-    
     }
 
     /**
@@ -77,7 +84,7 @@ class PostController extends Controller
     public function edit(Post $post)
     {
         $tags = Tag::all();
-        return view('admin.posts.edit', compact('post','tags'));
+        return view('admin.posts.edit', compact('post', 'tags'));
     }
 
     /**
@@ -90,14 +97,23 @@ class PostController extends Controller
     public function update(Request $request, Post $post)
     {
         $data = $request->all();
+        $data['updated_at'] = Carbon::now('Europe/Rome');
+
         $request->validate([
-            'title'=>'required|min:3|max:100',
-            'body'=>'required|min:3|max:100'
+            'title' => 'required|min:3|max:100',
+            'body' => 'required|min:3|max:100',
+            'img' => 'image'
         ]);
-        $data['slug'] = Str::slug($data['title'],'-');
+        if (!empty($data['img'])) {
+            if (!empty($post->img)) {
+                Storage::disk('public')->delete($post->img);
+            }
+            $data['img'] = Storage::disk('public')->put('images', $data['img']);
+        }
+        $data['slug'] = Str::slug($data['title'], '-');
         $post->tags()->sync($data['tags']);
         $post->update($data);
-        return redirect()->route('posts.index')->with('Updated','Post '.$post->id.' modificat con sucesso');
+        return redirect()->route('posts.index')->with('Updated', 'Post ' . $post->id . ' modificat con sucesso');
     }
 
     /**
@@ -109,6 +125,6 @@ class PostController extends Controller
     public function destroy(Post $post)
     {
         $post->delete();
-        return redirect()->route('posts.index')->with('delete','Hai cancellato il post '.$post->id);
+        return redirect()->route('posts.index')->with('delete', 'Hai cancellato il post ' . $post->id);
     }
 }
